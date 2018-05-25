@@ -2,7 +2,6 @@ package com.orientechnologies.ldbc.snb.benchmark.loader.loaders;
 
 import com.orientechnologies.ldbc.snb.benchmark.loader.dto.AbstractDTO;
 import com.orientechnologies.ldbc.snb.benchmark.loader.tasks.AbstractLoaderTask;
-import com.orientechnologies.ldbc.snb.benchmark.loader.utils.Constants;
 import com.orientechnologies.ldbc.snb.benchmark.loader.utils.DateUtils;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import org.apache.commons.csv.CSVFormat;
@@ -40,7 +39,7 @@ public abstract class AbstractLoader<D extends AbstractDTO> {
     final int numThreads = 8;
 
     final String loaderName = this.getClass().getSimpleName();
-    System.out.printf("%tc : Start loading of data from '%s' files from directory %s using %s loader\n", System.currentTimeMillis(),
+    System.out.printf("%tc : Start loading of data from '%s' files from directory %s using %s.\n", System.currentTimeMillis(),
         filePattern, dataDir, loaderName);
 
     final AtomicLong operationsCounter = new AtomicLong();
@@ -88,11 +87,13 @@ public abstract class AbstractLoader<D extends AbstractDTO> {
 
     final int[] passedTime = DateUtils.convertIntervalInHoursMinSec(timePassed);
     final long timePerOperation = timePassed / operations;
-    final long throughput = Constants.NANOS_IN_SECONDS / timePerOperation;
+    final long throughput = DateUtils.NANOS_IN_SECONDS / timePerOperation;
     final long operationTimeMks = timePerOperation / 1_000;
 
-    System.out.printf("%tc : %s : Loading is completed in %d h. %d m. %d s. Avg operation time %d us. Throughput %d op/s\n",
-        System.currentTimeMillis(), loaderName, passedTime[0], passedTime[1], passedTime[2], operationTimeMks, throughput);
+    System.out.printf("%tc : %s : Loading is completed in %d h. %d m. %d s. Avg operation time %d us. Throughput %d op/s. "
+            + "Total operations %d.\n",
+        System.currentTimeMillis(), loaderName, passedTime[0], passedTime[1], passedTime[2], operationTimeMks,
+        throughput, operations);
   }
 
   protected abstract AbstractLoaderTask<D> createNewTask(ArrayBlockingQueue<D> dataQueue, ODatabasePool pool,
@@ -129,7 +130,7 @@ public abstract class AbstractLoader<D extends AbstractDTO> {
                 currentOperations);
           } else {
             final long operationTime = timePassed / operationsPassed;
-            final long throughput = Constants.NANOS_IN_SECONDS / operationTime;
+            final long throughput = DateUtils.NANOS_IN_SECONDS / operationTime;
             final long operationTimeInMks = operationTime / 1_000;
             System.out.printf("%tc : %d operations, avg. operation time %d us, throughput %d op/s\n", System.currentTimeMillis(),
                 currentOperations, operationTimeInMks, throughput);

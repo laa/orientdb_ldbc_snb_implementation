@@ -10,7 +10,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class TagClassLoaderTask extends AbstractLoaderTask<TagClassDTO> {
-  TagClassLoaderTask(ArrayBlockingQueue<TagClassDTO> dataQueue, ODatabasePool pool, AtomicLong operationsCounter) {
+  public TagClassLoaderTask(ArrayBlockingQueue<TagClassDTO> dataQueue, ODatabasePool pool, AtomicLong operationsCounter) {
     super(dataQueue, pool, operationsCounter);
   }
 

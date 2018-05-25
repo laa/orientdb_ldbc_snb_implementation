@@ -10,7 +10,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class ForumLoaderTask extends AbstractLoaderTask<ForumDTO> {
-  ForumLoaderTask(ArrayBlockingQueue<ForumDTO> dataQueue, ODatabasePool pool, AtomicLong operationsCounter) {
+  public ForumLoaderTask(ArrayBlockingQueue<ForumDTO> dataQueue, ODatabasePool pool, AtomicLong operationsCounter) {
     super(dataQueue, pool, operationsCounter);
   }
 

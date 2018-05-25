@@ -8,6 +8,10 @@ import java.util.Date;
 import java.util.Locale;
 
 public class DateUtils {
+  private static final long NANOS_IN_HOUR    = 60 * 60 * 1_000_000_000L;
+  private static final long NANOS_IN_MINUTES = 60 * 1_000_000_000L;
+  public static final  long NANOS_IN_SECONDS = 1_000_000_000L;
+
   private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'kk:mm:ss.SSSX", Locale.US);
   private static final DateTimeFormatter DATE_FORMATTER      = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.US);
 
@@ -22,10 +26,10 @@ public class DateUtils {
   }
 
   public static int[] convertIntervalInHoursMinSec(long interval) {
-    final long hours = interval / Constants.NANOS_IN_HOUR;
-    final long minutes = (interval - hours * Constants.NANOS_IN_HOUR) / Constants.NANOS_IN_MINUTES;
+    final long hours = interval / NANOS_IN_HOUR;
+    final long minutes = (interval - hours * NANOS_IN_HOUR) / NANOS_IN_MINUTES;
     final long seconds =
-        (interval - hours * Constants.NANOS_IN_HOUR - minutes * Constants.NANOS_IN_MINUTES) / Constants.NANOS_IN_SECONDS;
+        (interval - hours * NANOS_IN_HOUR - minutes * NANOS_IN_MINUTES) / NANOS_IN_SECONDS;
 
     return new int[] { (int) hours, (int) minutes, (int) seconds };
   }

@@ -10,7 +10,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class CommentLoaderTask extends AbstractLoaderTask<CommentDTO> {
-  CommentLoaderTask(ArrayBlockingQueue<CommentDTO> dataQueue, ODatabasePool pool, AtomicLong operationsCounter) {
+  public CommentLoaderTask(ArrayBlockingQueue<CommentDTO> dataQueue, ODatabasePool pool, AtomicLong operationsCounter) {
     super(dataQueue, pool, operationsCounter);
   }
 

@@ -1,7 +1,6 @@
 package com.orientechnologies.ldbc.snb.benchmark.loader.loaders;
 
 import com.orientechnologies.ldbc.snb.benchmark.loader.dto.AbstractDTO;
-import com.orientechnologies.ldbc.snb.benchmark.loader.utils.Constants;
 import com.orientechnologies.ldbc.snb.benchmark.loader.utils.DateUtils;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import org.apache.commons.csv.CSVFormat;
@@ -36,7 +35,7 @@ public abstract class AbstractPartitionedLoader<D extends AbstractDTO> extends A
     final List<Future<Void>> futures = new ArrayList<>();
 
     final String loaderName = this.getClass().getSimpleName();
-    System.out.printf("%tc : Start loading of data from '%s' files from directory %s using %s loader\n", System.currentTimeMillis(),
+    System.out.printf("%tc : Start loading of data from '%s' files from directory %s using %s.\n", System.currentTimeMillis(),
         filePattern, dataDir, loaderName);
 
     final AtomicLong operationsCounter = new AtomicLong();
@@ -55,7 +54,8 @@ public abstract class AbstractPartitionedLoader<D extends AbstractDTO> extends A
             try (InputStream is = Files.newInputStream(path)) {
               try (InputStreamReader isr = new InputStreamReader(is)) {
                 try (BufferedReader br = new BufferedReader(isr)) {
-                  try (CSVParser csvParser = new CSVParser(br, CSVFormat.DEFAULT.withSkipHeaderRecord().withFirstRecordAsHeader().withDelimiter('|'))) {
+                  try (CSVParser csvParser = new CSVParser(br,
+                      CSVFormat.DEFAULT.withSkipHeaderRecord().withFirstRecordAsHeader().withDelimiter('|'))) {
                     for (CSVRecord csvRecord : csvParser) {
                       final D dataRecord = parseCSVRecord(csvRecord);
                       final int queueIndex = (int) (dataRecord.id & 7);
@@ -89,11 +89,12 @@ public abstract class AbstractPartitionedLoader<D extends AbstractDTO> extends A
 
     final int[] passedTime = DateUtils.convertIntervalInHoursMinSec(timePassed);
     final long timePerOperation = timePassed / operations;
-    final long throughput = Constants.NANOS_IN_SECONDS / timePerOperation;
+    final long throughput = DateUtils.NANOS_IN_SECONDS / timePerOperation;
     final long operationTimeMks = timePerOperation / 1_000;
 
-    System.out.printf("%tc : %s : Loading is completed in %d h. %d m. %d s. Avg operation time %d us. Throughput %d op/s\n",
-        System.currentTimeMillis(), loaderName, passedTime[0], passedTime[1], passedTime[2], operationTimeMks, throughput);
+    System.out.printf("%tc : %s : Loading is completed in %d h. %d m. %d s. Avg operation time %d us."
+            + " Throughput %d op/s. Total operations %d.\n", System.currentTimeMillis(), loaderName, passedTime[0], passedTime[1],
+        passedTime[2], operationTimeMks, throughput, operations);
   }
 }
 

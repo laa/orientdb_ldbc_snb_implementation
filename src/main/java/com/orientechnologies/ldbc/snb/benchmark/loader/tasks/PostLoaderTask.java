@@ -10,7 +10,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class PostLoaderTask extends AbstractLoaderTask<PostDTO> {
-  PostLoaderTask(ArrayBlockingQueue<PostDTO> dataQueue, ODatabasePool pool, AtomicLong operationsCounter) {
+  public PostLoaderTask(ArrayBlockingQueue<PostDTO> dataQueue, ODatabasePool pool, AtomicLong operationsCounter) {
     super(dataQueue, pool, operationsCounter);
   }
 
