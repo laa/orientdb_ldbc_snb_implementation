@@ -96,6 +96,8 @@ public class DBLoader {
 
         final PersonSpeaksLoader personSpeaksLoader = new PersonSpeaksLoader(dataDir, "person_speaks_language_\\d+_\\d+\\.csv");
         personSpeaksLoader.loadData(pool, cachedExecutor);
+
+        cachedExecutor.shutdown();
       }
     }
 
