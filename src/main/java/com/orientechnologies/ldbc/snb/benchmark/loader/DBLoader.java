@@ -2,24 +2,54 @@ package com.orientechnologies.ldbc.snb.benchmark.loader;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.CommentHasCreatorLoader;
+import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.CommentHasTagLoader;
+import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.CommentIsLocatedInLoader;
 import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.CommentLoader;
+import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.CommentReplyOfCommentLoader;
+import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.CommentReplyOfPostLoader;
 import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.ContainerOfLoader;
+import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.ForumHasTagLoader;
 import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.ForumLoader;
 import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.HasInterestLoader;
 import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.HasMemberLoader;
+import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.HasModeratorLoader;
+import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.HasTypeLoader;
+import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.KnowsLoader;
+import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.OrganisationIsLocatedInLoader;
 import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.OrganisationLoader;
 import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.PersonEMailLoader;
+import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.PersonIsLocatedInLoader;
+import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.PersonLikesCommentLoader;
+import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.PersonLikesPostLoader;
 import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.PersonLoader;
 import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.PersonSpeaksLoader;
+import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.PlaceIsPartOfLoader;
 import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.PlaceLoader;
 import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.PostHasCreatorLoader;
+import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.PostHasTagLoader;
+import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.PostIsLocatedInLoader;
 import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.PostLoader;
+import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.StudyAtLoader;
 import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.TagClassLoader;
 import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.TagLoader;
+import com.orientechnologies.ldbc.snb.benchmark.loader.loaders.WorkAtLoader;
+import com.orientechnologies.ldbc.snb.benchmark.loader.schema.Knows;
+import com.orientechnologies.ldbc.snb.benchmark.loader.schema.Likes;
+import com.orientechnologies.ldbc.snb.benchmark.loader.schema.PlaceIsPartOf;
+import com.orientechnologies.ldbc.snb.benchmark.loader.schema.MessageIsLocatedIn;
+import com.orientechnologies.ldbc.snb.benchmark.loader.schema.OrganisationIsLocatedIn;
 import com.orientechnologies.ldbc.snb.benchmark.loader.schema.ContainerOf;
+import com.orientechnologies.ldbc.snb.benchmark.loader.schema.ForumHasTag;
 import com.orientechnologies.ldbc.snb.benchmark.loader.schema.HasCreator;
 import com.orientechnologies.ldbc.snb.benchmark.loader.schema.HasInterest;
 import com.orientechnologies.ldbc.snb.benchmark.loader.schema.HasMember;
+import com.orientechnologies.ldbc.snb.benchmark.loader.schema.HasModerator;
+import com.orientechnologies.ldbc.snb.benchmark.loader.schema.HasType;
+import com.orientechnologies.ldbc.snb.benchmark.loader.schema.MessageHasTag;
+import com.orientechnologies.ldbc.snb.benchmark.loader.schema.PersonIsLocatedIn;
+import com.orientechnologies.ldbc.snb.benchmark.loader.schema.ReplyOf;
+import com.orientechnologies.ldbc.snb.benchmark.loader.schema.StudyAt;
+import com.orientechnologies.ldbc.snb.benchmark.loader.schema.WorkAt;
 import com.orientechnologies.ldbc.snb.benchmark.loader.utils.DateUtils;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
@@ -65,26 +95,26 @@ public class DBLoader {
   public static final  String POST_LANGUAGE            = "language";
   public static final  String COMMENT_CLASS            = "Comment";
   public static final  String TAG_CLASS_CLASS          = "TagClass";
-  public static final  String TAG_CLASS_ID       = "id";
-  public static final  String TAG_CLASS_NAME     = "name";
-  public static final  String TAG_CLASS_URL      = "url";
-  public static final  String TAG_CLASS          = "Tag";
-  public static final  String TAG_ID             = "id";
-  public static final  String TAG_NAME           = "name";
-  public static final  String TAG_URL            = "url";
-  private static final String PLACE_CLASS        = "Place";
-  private static final String PLACE_ID           = "id";
-  public static final  String PLACE_NAME         = "name";
-  public static final  String PLACE_URL          = "url";
-  public static final  String CITY_CLASS         = "City";
-  public static final  String COUNTRY_CLASS      = "Country";
-  public static final  String CONTINENT_CLASS    = "Continent";
-  private static final String ORGANISATION_CLASS = "Organisation";
-  private static final String ORGANISATION_ID    = "id";
-  public static final  String ORGANISATION_NAME  = "name";
-  public static final  String ORGANISATION_URL   = "url";
-  public static final  String UNIVERSITY_CLASS   = "University";
-  public static final  String COMPANY_CLASS      = "Company";
+  public static final  String TAG_CLASS_ID             = "id";
+  public static final  String TAG_CLASS_NAME           = "name";
+  public static final  String TAG_CLASS_URL            = "url";
+  public static final  String TAG_CLASS                = "Tag";
+  public static final  String TAG_ID                   = "id";
+  public static final  String TAG_NAME                 = "name";
+  public static final  String TAG_URL                  = "url";
+  public static final  String PLACE_CLASS              = "Place";
+  public static final  String PLACE_ID                 = "id";
+  public static final  String PLACE_NAME               = "name";
+  public static final  String PLACE_URL                = "url";
+  public static final  String CITY_CLASS               = "City";
+  public static final  String COUNTRY_CLASS            = "Country";
+  public static final  String CONTINENT_CLASS          = "Continent";
+  public static final  String ORGANISATION_CLASS       = "Organisation";
+  public static final  String ORGANISATION_ID          = "id";
+  public static final  String ORGANISATION_NAME        = "name";
+  public static final  String ORGANISATION_URL         = "url";
+  public static final  String UNIVERSITY_CLASS         = "University";
+  public static final  String COMPANY_CLASS            = "Company";
 
   private static final String DEFAULT_DATA_DIR = "./data/SF1/social_network/";
 
@@ -106,22 +136,7 @@ public class DBLoader {
 
         loadEntries(dataDir, pool, cachedExecutor);
 
-        final ContainerOfLoader containerOfLoader = new ContainerOfLoader(dataDir, "forum_containerOf_post_\\d+_\\d+\\.csv");
-        containerOfLoader.loadData(pool, cachedExecutor);
-
-        final CommentHasCreatorLoader commentHasCreatorLoader = new CommentHasCreatorLoader(dataDir,
-            "comment_hasCreator_person_\\d+_\\d+\\.csv");
-        commentHasCreatorLoader.loadData(pool, cachedExecutor);
-
-        final PostHasCreatorLoader postHasCreatorLoader = new PostHasCreatorLoader(dataDir,
-            "post_hasCreator_person_\\d+_\\d+\\.csv");
-        postHasCreatorLoader.loadData(pool, cachedExecutor);
-
-        final HasInterestLoader hasInterestLoader = new HasInterestLoader(dataDir, "person_hasInterest_tag_\\d+_\\d+\\.csv");
-        hasInterestLoader.loadData(pool, cachedExecutor);
-
-        final HasMemberLoader hasMemberLoader = new HasMemberLoader(dataDir, "forum_hasMember_person_\\d+_\\d+\\.csv");
-        hasMemberLoader.loadData(pool, cachedExecutor);
+        loadRelations(dataDir, pool, cachedExecutor);
 
         cachedExecutor.shutdown();
       }
@@ -133,6 +148,84 @@ public class DBLoader {
     System.out
         .printf("%tc : Loading of data is completed in %d h. %d. m. %d s.\n", System.currentTimeMillis(), passed[0], passed[1],
             passed[2]);
+  }
+
+  private static void loadRelations(Path dataDir, ODatabasePool pool, ExecutorService cachedExecutor)
+      throws java.io.IOException, java.util.concurrent.ExecutionException, InterruptedException {
+    final ContainerOfLoader containerOfLoader = new ContainerOfLoader(dataDir, "forum_containerOf_post_\\d+_\\d+\\.csv");
+    containerOfLoader.loadData(pool, cachedExecutor);
+
+    final CommentHasCreatorLoader commentHasCreatorLoader = new CommentHasCreatorLoader(dataDir,
+        "comment_hasCreator_person_\\d+_\\d+\\.csv");
+    commentHasCreatorLoader.loadData(pool, cachedExecutor);
+
+    final PostHasCreatorLoader postHasCreatorLoader = new PostHasCreatorLoader(dataDir,
+        "post_hasCreator_person_\\d+_\\d+\\.csv");
+    postHasCreatorLoader.loadData(pool, cachedExecutor);
+
+    final HasInterestLoader hasInterestLoader = new HasInterestLoader(dataDir, "person_hasInterest_tag_\\d+_\\d+\\.csv");
+    hasInterestLoader.loadData(pool, cachedExecutor);
+
+    final HasMemberLoader hasMemberLoader = new HasMemberLoader(dataDir, "forum_hasMember_person_\\d+_\\d+\\.csv");
+    hasMemberLoader.loadData(pool, cachedExecutor);
+
+    final OrganisationIsLocatedInLoader organisationIsLocatedInLoader = new OrganisationIsLocatedInLoader(dataDir,
+        "organisation_isLocatedIn_place_\\d+_\\d+\\.csv");
+    organisationIsLocatedInLoader.loadData(pool, cachedExecutor);
+
+    final HasModeratorLoader hasModeratorLoader = new HasModeratorLoader(dataDir, "forum_hasModerator_person_\\d+_\\d+\\.csv");
+    hasModeratorLoader.loadData(pool, cachedExecutor);
+
+    final CommentHasTagLoader commentHasTagLoader = new CommentHasTagLoader(dataDir, "comment_hasTag_tag_\\d+_\\d+\\.csv");
+    commentHasTagLoader.loadData(pool, cachedExecutor);
+
+    final PostHasTagLoader postHasTagLoader = new PostHasTagLoader(dataDir, "post_hasTag_tag_\\d+_\\d+\\.csv");
+    postHasTagLoader.loadData(pool, cachedExecutor);
+
+    final ForumHasTagLoader forumHasTagLoader = new ForumHasTagLoader(dataDir, "forum_hasTag_tag_\\d+_\\d+\\.csv");
+    forumHasTagLoader.loadData(pool, cachedExecutor);
+
+    final HasTypeLoader hasTypeLoader = new HasTypeLoader(dataDir, "tag_hasType_tagclass_\\d+_\\d+\\.csv");
+    hasTypeLoader.loadData(pool, cachedExecutor);
+
+    final CommentIsLocatedInLoader commentIsLocatedInLoader = new CommentIsLocatedInLoader(dataDir,
+        "comment_isLocatedIn_place_\\d+_\\d+\\.csv");
+    commentIsLocatedInLoader.loadData(pool, cachedExecutor);
+
+    final PostIsLocatedInLoader postIsLocatedInLoader = new PostIsLocatedInLoader(dataDir,
+        "post_isLocatedIn_place_\\d+_\\d+\\.csv");
+    postIsLocatedInLoader.loadData(pool, cachedExecutor);
+
+    final PersonIsLocatedInLoader personIsLocatedInLoader = new PersonIsLocatedInLoader(dataDir,
+        "person_isLocatedIn_place_\\d+_\\d+\\.csv");
+    personIsLocatedInLoader.loadData(pool, cachedExecutor);
+
+    final PlaceIsPartOfLoader placeIsPartOfLoader = new PlaceIsPartOfLoader(dataDir, "place_isPartOf_place_\\d+_\\d+\\.csv");
+    placeIsPartOfLoader.loadData(pool, cachedExecutor);
+
+    final KnowsLoader knowsLoader = new KnowsLoader(dataDir, "person_knows_person_\\d+_\\d+\\.csv");
+    knowsLoader.loadData(pool, cachedExecutor);
+
+    final PersonLikesCommentLoader personLikesCommentLoader = new PersonLikesCommentLoader(dataDir,
+        "person_likes_comment_\\d+_\\d+\\.csv");
+    personLikesCommentLoader.loadData(pool, cachedExecutor);
+
+    final PersonLikesPostLoader personLikesPostLoader = new PersonLikesPostLoader(dataDir, "person_likes_post_\\d+_\\d+\\.csv");
+    personLikesPostLoader.loadData(pool, cachedExecutor);
+
+    final CommentReplyOfCommentLoader commentReplyOfCommentLoader = new CommentReplyOfCommentLoader(dataDir,
+        "comment_replyOf_comment_\\d+_\\d+\\.csv");
+    commentReplyOfCommentLoader.loadData(pool, cachedExecutor);
+
+    final CommentReplyOfPostLoader commentReplyOfPostLoader = new CommentReplyOfPostLoader(dataDir,
+        "comment_replyOf_post_\\d+_\\d+\\.csv");
+    commentReplyOfPostLoader.loadData(pool, cachedExecutor);
+
+    final StudyAtLoader studyAtLoader = new StudyAtLoader(dataDir, "person_studyAt_organisation_\\d+_\\d+\\.csv");
+    studyAtLoader.loadData(pool, cachedExecutor);
+
+    final WorkAtLoader workAtLoader = new WorkAtLoader(dataDir, "person_workAt_organisation_\\d+_\\d+\\.csv");
+    workAtLoader.loadData(pool, cachedExecutor);
   }
 
   private static void loadEntries(Path dataDir, ODatabasePool pool, ExecutorService cachedExecutor)
@@ -187,30 +280,28 @@ public class DBLoader {
     OClass hasMemberClass = session.createEdgeClass(HasMember.NAME);
     hasMemberClass.createProperty(HasMember.JOIN_DATE, HasMember.JOIN_DATE_TYPE);
 
-    session.createEdgeClass("hasModerator");
-    session.createEdgeClass("messageHasTag");
-    session.createEdgeClass("forumHasTag");
-    session.createEdgeClass("hasType");
-    session.createEdgeClass("companyIsLocatedId");
-    session.createEdgeClass("messageIsLocatedId");
-    session.createEdgeClass("personIsLocatedId");
-    session.createEdgeClass("universityIsLocatedId");
-    session.createEdgeClass("cityIsPartOf");
-    session.createEdgeClass("countryIsPartOf");
+    session.createEdgeClass(HasModerator.NAME);
+    session.createEdgeClass(MessageHasTag.NAME);
+    session.createEdgeClass(ForumHasTag.NAME);
+    session.createEdgeClass(HasType.NAME);
+    session.createEdgeClass(OrganisationIsLocatedIn.NAME);
+    session.createEdgeClass(MessageIsLocatedIn.NAME);
+    session.createEdgeClass(PersonIsLocatedIn.NAME);
+    session.createEdgeClass(PlaceIsPartOf.NAME);
 
-    final OClass knowsClass = session.createEdgeClass("knows");
-    knowsClass.createProperty("creationDate", OType.DATETIME);
+    final OClass knowsClass = session.createEdgeClass(Knows.NAME);
+    knowsClass.createProperty(Knows.CREATION_DATE, Knows.CREATION_DATE_TYPE);
 
-    final OClass likes = session.createEdgeClass("likes");
-    likes.createProperty("creationDate", OType.DATETIME);
+    final OClass likes = session.createEdgeClass(Likes.NAME);
+    likes.createProperty(Likes.CREATION_DATE, Likes.CREATION_DATE_TYPE);
 
-    session.createEdgeClass("replyOf");
+    session.createEdgeClass(ReplyOf.NAME);
 
-    final OClass studyAtClass = session.createEdgeClass("studyAt");
-    studyAtClass.createProperty("classYear", OType.INTEGER);
+    final OClass studyAtClass = session.createEdgeClass(StudyAt.NAME);
+    studyAtClass.createProperty(StudyAt.CLASS_YEAR, StudyAt.CLASS_YEAR_TYPE);
 
-    final OClass workAtClass = session.createEdgeClass("workAt");
-    workAtClass.createProperty("workFrom", OType.INTEGER);
+    final OClass workAtClass = session.createEdgeClass(WorkAt.NAME);
+    workAtClass.createProperty(WorkAt.WORK_FROM, WorkAt.WORK_FROM_TYPE);
   }
 
   private static void createVertexTypes(ODatabaseSession session) {
