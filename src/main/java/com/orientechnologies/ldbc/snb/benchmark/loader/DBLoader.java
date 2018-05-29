@@ -157,7 +157,7 @@ public class DBLoader {
     System.out
         .printf("%tc : Loading of data is completed in %d h. %d. m. %d s.\n", System.currentTimeMillis(), passed[0], passed[1],
             passed[2]);
-    System.out.printf("%tc : Schema is loaded in %d s.\n", System.currentTimeMillis(),
+    System.out.printf("%tc : Schema is created in %d s.\n", System.currentTimeMillis(),
         schemaGenerationInterval / DateUtils.NANOS_IN_SECONDS);
     System.out.printf("%tc : Entries are loaded in  %d s. \n", System.currentTimeMillis(),
         entriesLoadInterval / DateUtils.NANOS_IN_SECONDS);
