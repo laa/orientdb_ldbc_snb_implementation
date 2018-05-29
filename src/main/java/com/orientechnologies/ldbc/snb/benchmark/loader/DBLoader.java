@@ -170,7 +170,7 @@ public class DBLoader {
 
   private static void printThroughPut(SortedMap<String, Integer> throughput) {
     for (Map.Entry<String, Integer> entry : throughput.entrySet()) {
-      System.out.printf("%tc : \t %s : %d\n", System.currentTimeMillis(), entry.getKey(), entry.getValue());
+      System.out.printf("%tc : \t %s : %d op/s\n", System.currentTimeMillis(), entry.getKey(), entry.getValue());
     }
   }
 
