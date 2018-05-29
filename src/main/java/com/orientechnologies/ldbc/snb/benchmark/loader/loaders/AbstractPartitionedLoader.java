@@ -55,7 +55,7 @@ public abstract class AbstractPartitionedLoader<D extends AbstractDTO> extends A
               try (InputStreamReader isr = new InputStreamReader(is)) {
                 try (BufferedReader br = new BufferedReader(isr)) {
                   try (CSVParser csvParser = new CSVParser(br,
-                      CSVFormat.DEFAULT.withSkipHeaderRecord().withFirstRecordAsHeader().withDelimiter('|'))) {
+                      CSVFormat.DEFAULT.withSkipHeaderRecord().withFirstRecordAsHeader().withDelimiter('|').withAllowMissingColumnNames())) {
                     for (CSVRecord csvRecord : csvParser) {
                       final D dataRecord = parseCSVRecord(csvRecord);
                       final int queueIndex = (int) (dataRecord.id & 7);
