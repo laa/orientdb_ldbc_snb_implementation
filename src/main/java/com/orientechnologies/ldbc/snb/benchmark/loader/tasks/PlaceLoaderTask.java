@@ -31,6 +31,8 @@ public class PlaceLoaderTask extends AbstractLoaderTask<PlaceDTO> {
       throw new IllegalArgumentException("Invalid entry type " + dto.type);
     }
 
+    placeVertex.setProperty(DBLoader.PLACE_ID, dto.id);
+
     placeVertex.setProperty(DBLoader.PLACE_NAME, dto.name);
     placeVertex.setProperty(DBLoader.PLACE_URL, dto.url);
 

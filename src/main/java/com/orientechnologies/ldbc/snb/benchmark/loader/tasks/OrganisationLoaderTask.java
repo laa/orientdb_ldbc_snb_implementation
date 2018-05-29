@@ -29,6 +29,9 @@ public class OrganisationLoaderTask extends AbstractLoaderTask<OrganisationDTO> 
       throw new IllegalStateException("Invalid entity type " + dto.type);
     }
 
+
+    organisationVertex.setProperty(DBLoader.ORGANISATION_ID, dto.id);
+
     organisationVertex.setProperty(DBLoader.ORGANISATION_NAME, dto.name);
     organisationVertex.setProperty(DBLoader.ORGANISATION_URL, dto.url);
 
