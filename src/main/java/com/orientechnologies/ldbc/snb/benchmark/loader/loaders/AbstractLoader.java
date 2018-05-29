@@ -133,7 +133,7 @@ public abstract class AbstractLoader<D extends AbstractDTO> {
             final long operationTime = timePassed / operationsPassed;
             final long throughput = DateUtils.NANOS_IN_SECONDS / operationTime;
             final long operationTimeInMks = operationTime / 1_000;
-            System.out.printf("%tc %s: %d operations, avg. operation time %d us, throughput %d op/s\n", System.currentTimeMillis(),
+            System.out.printf("%tc : %s: %d operations, avg. operation time %d us, throughput %d op/s\n", System.currentTimeMillis(),
                 loaderName, currentOperations, operationTimeInMks, throughput);
           }
         }
