@@ -45,7 +45,7 @@ public abstract class AbstractPartitionedLoader<D extends AbstractDTO> extends A
       dataQueues[i] = dataQueue;
     }
 
-    final Timer statusTimer = startStatusTimer(operationsCounter);
+    final Timer statusTimer = startStatusTimer(operationsCounter, loaderName);
     final long start = System.nanoTime();
 
     Files.list(dataDir).filter((path) -> path.getFileName().toString().matches(filePattern)).

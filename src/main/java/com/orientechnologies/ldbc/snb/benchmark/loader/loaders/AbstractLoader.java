@@ -47,7 +47,7 @@ public abstract class AbstractLoader<D extends AbstractDTO> {
       futures.add(executor.submit(createNewTask(dataQueue, pool, operationsCounter)));
     }
 
-    final Timer statusTimer = startStatusTimer(operationsCounter);
+    final Timer statusTimer = startStatusTimer(operationsCounter, loaderName);
     final long start = System.nanoTime();
 
     Files.list(dataDir).filter((path) -> path.getFileName().toString().matches(filePattern)).
@@ -103,7 +103,7 @@ public abstract class AbstractLoader<D extends AbstractDTO> {
 
   protected abstract D createStopRecord();
 
-  Timer startStatusTimer(AtomicLong operationsCounter) {
+  Timer startStatusTimer(AtomicLong operationsCounter, String loaderName) {
     final Timer statusTimer = new Timer();
 
     statusTimer.schedule(new TimerTask() {
@@ -132,8 +132,8 @@ public abstract class AbstractLoader<D extends AbstractDTO> {
             final long operationTime = timePassed / operationsPassed;
             final long throughput = DateUtils.NANOS_IN_SECONDS / operationTime;
             final long operationTimeInMks = operationTime / 1_000;
-            System.out.printf("%tc : %d operations, avg. operation time %d us, throughput %d op/s\n", System.currentTimeMillis(),
-                currentOperations, operationTimeInMks, throughput);
+            System.out.printf("%tc %s: %d operations, avg. operation time %d us, throughput %d op/s\n", System.currentTimeMillis(),
+                loaderName, currentOperations, operationTimeInMks, throughput);
           }
         }
       }
