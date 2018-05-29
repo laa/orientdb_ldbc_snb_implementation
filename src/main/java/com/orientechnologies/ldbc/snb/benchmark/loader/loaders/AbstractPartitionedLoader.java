@@ -28,7 +28,7 @@ public abstract class AbstractPartitionedLoader<D extends AbstractDTO> extends A
   }
 
   @Override
-  public void loadData(ODatabasePool pool, ExecutorService executor) throws IOException, ExecutionException, InterruptedException {
+  public int loadData(ODatabasePool pool, ExecutorService executor) throws IOException, ExecutionException, InterruptedException {
     final int numThreads = 8;
     @SuppressWarnings("unchecked")
     final ArrayBlockingQueue<D>[] dataQueues = new ArrayBlockingQueue[numThreads];
@@ -55,7 +55,8 @@ public abstract class AbstractPartitionedLoader<D extends AbstractDTO> extends A
               try (InputStreamReader isr = new InputStreamReader(is)) {
                 try (BufferedReader br = new BufferedReader(isr)) {
                   try (CSVParser csvParser = new CSVParser(br,
-                      CSVFormat.DEFAULT.withSkipHeaderRecord().withFirstRecordAsHeader().withDelimiter('|').withAllowMissingColumnNames())) {
+                      CSVFormat.DEFAULT.withSkipHeaderRecord().withFirstRecordAsHeader().withDelimiter('|')
+                          .withAllowMissingColumnNames())) {
                     for (CSVRecord csvRecord : csvParser) {
                       final D dataRecord = parseCSVRecord(csvRecord);
                       final int queueIndex = (int) (dataRecord.id & 7);
@@ -95,6 +96,8 @@ public abstract class AbstractPartitionedLoader<D extends AbstractDTO> extends A
     System.out.printf("%tc : %s : Loading is completed in %d h. %d m. %d s. Avg operation time %d us."
             + " Throughput %d op/s. Total operations %d.\n", System.currentTimeMillis(), loaderName, passedTime[0], passedTime[1],
         passedTime[2], operationTimeMks, throughput, operations);
+
+    return (int) throughput;
   }
 }
 

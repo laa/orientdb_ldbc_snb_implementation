@@ -33,7 +33,7 @@ public abstract class AbstractLoader<D extends AbstractDTO> {
     this.filePattern = filePattern;
   }
 
-  public void loadData(ODatabasePool pool, ExecutorService executor) throws IOException, ExecutionException, InterruptedException {
+  public int loadData(ODatabasePool pool, ExecutorService executor) throws IOException, ExecutionException, InterruptedException {
     final ArrayBlockingQueue<D> dataQueue = new ArrayBlockingQueue<>(1024);
     final List<Future<Void>> futures = new ArrayList<>();
     final int numThreads = 8;
@@ -57,7 +57,8 @@ public abstract class AbstractLoader<D extends AbstractDTO> {
               try (InputStreamReader isr = new InputStreamReader(is)) {
                 try (BufferedReader br = new BufferedReader(isr)) {
                   try (CSVParser csvParser = new CSVParser(br,
-                      CSVFormat.DEFAULT.withSkipHeaderRecord().withFirstRecordAsHeader().withDelimiter('|').withAllowMissingColumnNames())) {
+                      CSVFormat.DEFAULT.withSkipHeaderRecord().withFirstRecordAsHeader().withDelimiter('|')
+                          .withAllowMissingColumnNames())) {
                     for (CSVRecord csvRecord : csvParser) {
                       dataQueue.put(parseCSVRecord(csvRecord));
                     }
@@ -92,9 +93,10 @@ public abstract class AbstractLoader<D extends AbstractDTO> {
     final long operationTimeMks = timePerOperation / 1_000;
 
     System.out.printf("%tc : %s : Loading is completed in %d h. %d m. %d s. Avg operation time %d us. Throughput %d op/s. "
-            + "Total operations %d.\n",
-        System.currentTimeMillis(), loaderName, passedTime[0], passedTime[1], passedTime[2], operationTimeMks,
-        throughput, operations);
+            + "Total operations %d.\n", System.currentTimeMillis(), loaderName, passedTime[0], passedTime[1], passedTime[2],
+        operationTimeMks, throughput, operations);
+
+    return (int) throughput;
   }
 
   protected abstract AbstractLoaderTask<D> createNewTask(ArrayBlockingQueue<D> dataQueue, ODatabasePool pool,
@@ -133,8 +135,9 @@ public abstract class AbstractLoader<D extends AbstractDTO> {
             final long operationTime = timePassed / operationsPassed;
             final long throughput = DateUtils.NANOS_IN_SECONDS / operationTime;
             final long operationTimeInMks = operationTime / 1_000;
-            System.out.printf("%tc : %s: %d operations, avg. operation time %d us, throughput %d op/s\n", System.currentTimeMillis(),
-                loaderName, currentOperations, operationTimeInMks, throughput);
+            System.out
+                .printf("%tc : %s: %d operations, avg. operation time %d us, throughput %d op/s\n", System.currentTimeMillis(),
+                    loaderName, currentOperations, operationTimeInMks, throughput);
           }
         }
       }
