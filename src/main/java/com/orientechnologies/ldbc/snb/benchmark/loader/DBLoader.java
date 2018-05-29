@@ -123,20 +123,23 @@ public class DBLoader {
     System.out.printf("%tc : Start loading of data from directory %s\n", System.currentTimeMillis(), DEFAULT_DATA_DIR);
 
     OFileUtils.deleteRecursively(new File(DEFAULT_ENGINE_DIRECTORY));
+    final long entriesLoadInterval;
+    final long relationsLoadInterval;
+    final long schemaGenerationInterval;
 
     try (OrientDB orientDB = new OrientDB("plocal:" + DEFAULT_ENGINE_DIRECTORY, OrientDBConfig.defaultConfig())) {
       orientDB.create(DEFAULT_DB_NAME, ODatabaseType.PLOCAL);
       System.out.printf("%tc : Database %s was created \n", System.currentTimeMillis(), DEFAULT_DATA_DIR);
 
-      generateSchema(orientDB);
+      schemaGenerationInterval = generateSchema(orientDB);
 
       final Path dataDir = Paths.get(DEFAULT_DATA_DIR);
       try (ODatabasePool pool = new ODatabasePool(orientDB, DEFAULT_DB_NAME, "admin", "admin")) {
         final ExecutorService cachedExecutor = Executors.newCachedThreadPool();
 
-        loadEntries(dataDir, pool, cachedExecutor);
+        entriesLoadInterval = loadEntries(dataDir, pool, cachedExecutor);
 
-        loadRelations(dataDir, pool, cachedExecutor);
+        relationsLoadInterval = loadRelations(dataDir, pool, cachedExecutor);
 
         cachedExecutor.shutdown();
       }
@@ -148,10 +151,20 @@ public class DBLoader {
     System.out
         .printf("%tc : Loading of data is completed in %d h. %d. m. %d s.\n", System.currentTimeMillis(), passed[0], passed[1],
             passed[2]);
+    System.out.printf("%tc : Schema is loaded in %d s.\n", System.currentTimeMillis(),
+        schemaGenerationInterval / DateUtils.NANOS_IN_SECONDS);
+    System.out.printf("%tc : Entries are loaded in  %d s. \n", System.currentTimeMillis(),
+        entriesLoadInterval / DateUtils.NANOS_IN_SECONDS);
+    System.out.printf("%tc : Relations are loaded in %d s. \n", System.currentTimeMillis(),
+        relationsLoadInterval / DateUtils.NANOS_IN_SECONDS);
   }
 
-  private static void loadRelations(Path dataDir, ODatabasePool pool, ExecutorService cachedExecutor)
+  private static long loadRelations(Path dataDir, ODatabasePool pool, ExecutorService cachedExecutor)
       throws java.io.IOException, java.util.concurrent.ExecutionException, InterruptedException {
+    System.out.printf("%tc: Loading of database relations is started \n", System.currentTimeMillis());
+
+    final long start = System.nanoTime();
+
     final ContainerOfLoader containerOfLoader = new ContainerOfLoader(dataDir, "forum_containerOf_post_\\d+_\\d+\\.csv");
     containerOfLoader.loadData(pool, cachedExecutor);
 
@@ -159,8 +172,7 @@ public class DBLoader {
         "comment_hasCreator_person_\\d+_\\d+\\.csv");
     commentHasCreatorLoader.loadData(pool, cachedExecutor);
 
-    final PostHasCreatorLoader postHasCreatorLoader = new PostHasCreatorLoader(dataDir,
-        "post_hasCreator_person_\\d+_\\d+\\.csv");
+    final PostHasCreatorLoader postHasCreatorLoader = new PostHasCreatorLoader(dataDir, "post_hasCreator_person_\\d+_\\d+\\.csv");
     postHasCreatorLoader.loadData(pool, cachedExecutor);
 
     final HasInterestLoader hasInterestLoader = new HasInterestLoader(dataDir, "person_hasInterest_tag_\\d+_\\d+\\.csv");
@@ -226,10 +238,25 @@ public class DBLoader {
 
     final WorkAtLoader workAtLoader = new WorkAtLoader(dataDir, "person_workAt_organisation_\\d+_\\d+\\.csv");
     workAtLoader.loadData(pool, cachedExecutor);
+
+    final long end = System.nanoTime();
+
+    final long interval = end - start;
+
+    final int[] passed = DateUtils.convertIntervalInHoursMinSec(end - start);
+
+    System.out.printf("%tc: Loading of database relations is completed in %d h. %d. m. %d s. (%d nanoseconds) \n",
+        System.currentTimeMillis(), passed[0], passed[1], passed[2], interval);
+
+    return interval;
   }
 
-  private static void loadEntries(Path dataDir, ODatabasePool pool, ExecutorService cachedExecutor)
+  private static long loadEntries(Path dataDir, ODatabasePool pool, ExecutorService cachedExecutor)
       throws java.io.IOException, java.util.concurrent.ExecutionException, InterruptedException {
+    System.out.printf("%tc: Loading of database entries is started \n", System.currentTimeMillis());
+
+    final long start = System.nanoTime();
+
     final PersonLoader personLoader = new PersonLoader(dataDir, "person_\\d+_\\d+\\.csv");
     personLoader.loadData(pool, cachedExecutor);
 
@@ -259,17 +286,36 @@ public class DBLoader {
 
     final OrganisationLoader organisationLoader = new OrganisationLoader(dataDir, "organisation_\\d+_\\d+\\.csv");
     organisationLoader.loadData(pool, cachedExecutor);
+
+    final long end = System.nanoTime();
+
+    final long interval = end - start;
+
+    final int[] passed = DateUtils.convertIntervalInHoursMinSec(end - start);
+
+    System.out.printf("%tc: Loading of database entries is completed in %d h. %d. m. %d s. (%d nanoseconds) \n",
+        System.currentTimeMillis(), passed[0], passed[1], passed[2], interval);
+
+    return interval;
   }
 
-  private static void generateSchema(OrientDB orientDB) {
+  private static long generateSchema(OrientDB orientDB) {
     System.out.printf("%tc : Start schema generation\n", System.currentTimeMillis());
 
+    final long start;
+    final long end;
     try (ODatabaseSession session = orientDB.open(DEFAULT_DB_NAME, "admin", "admin")) {
+      start = System.nanoTime();
+
       createVertexTypes(session);
       createEdgeTypes(session);
+
+      end = System.nanoTime();
     }
 
     System.out.printf("%tc : Schema generation is completed\n", System.currentTimeMillis());
+
+    return end - start;
   }
 
   private static void createEdgeTypes(ODatabaseSession session) {
