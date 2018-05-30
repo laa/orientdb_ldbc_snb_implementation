@@ -119,7 +119,7 @@ public class DBLoader {
   public static final  String UNIVERSITY_CLASS         = "University";
   public static final  String COMPANY_CLASS            = "Company";
 
-  private static final String DEFAULT_DATA_DIR = "./data/SF1/social_network/";
+  private static final String DEFAULT_DATA_DIR = "./data/social_network/";
 
   public static void main(String[] args) throws Exception {
     final long start = System.nanoTime();
