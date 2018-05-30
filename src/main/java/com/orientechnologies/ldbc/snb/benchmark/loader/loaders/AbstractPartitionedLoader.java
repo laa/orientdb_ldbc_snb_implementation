@@ -28,7 +28,7 @@ public abstract class AbstractPartitionedLoader<D extends AbstractDTO> extends A
   }
 
   @Override
-  public int loadData(ODatabasePool pool, ExecutorService executor) throws IOException, ExecutionException, InterruptedException {
+  public long[] loadData(ODatabasePool pool, ExecutorService executor) throws IOException, ExecutionException, InterruptedException {
     final int numThreads = 8;
     @SuppressWarnings("unchecked")
     final ArrayBlockingQueue<D>[] dataQueues = new ArrayBlockingQueue[numThreads];
@@ -96,7 +96,7 @@ public abstract class AbstractPartitionedLoader<D extends AbstractDTO> extends A
             + " Throughput %d op/s. Total operations %d.\n", System.currentTimeMillis(), loaderName, passedTime[0], passedTime[1],
         passedTime[2], operationTimeMks, throughput, operations);
 
-    return (int) throughput;
+    return new long[] { throughput, operations };
   }
 }
 

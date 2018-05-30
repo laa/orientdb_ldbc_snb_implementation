@@ -130,6 +130,9 @@ public class DBLoader {
     final long relationsLoadInterval;
     final long schemaGenerationInterval;
 
+    final long entries;
+    final long relations;
+
     final SortedMap<String, Integer> relationsThroughput = new TreeMap<>();
     final SortedMap<String, Integer> entriesThroughput = new TreeMap<>();
 
@@ -143,9 +146,14 @@ public class DBLoader {
       try (ODatabasePool pool = new ODatabasePool(orientDB, DEFAULT_DB_NAME, "admin", "admin")) {
         final ExecutorService cachedExecutor = Executors.newCachedThreadPool();
 
-        entriesLoadInterval = loadEntries(dataDir, pool, cachedExecutor, entriesThroughput);
+        long stat[];
+        stat = loadEntries(dataDir, pool, cachedExecutor, entriesThroughput);
+        entriesLoadInterval = stat[0];
+        entries = stat[1];
 
-        relationsLoadInterval = loadRelations(dataDir, pool, cachedExecutor, relationsThroughput);
+        stat = loadRelations(dataDir, pool, cachedExecutor, relationsThroughput);
+        relationsLoadInterval = stat[0];
+        relations = stat[1];
 
         cachedExecutor.shutdown();
       }
@@ -159,11 +167,11 @@ public class DBLoader {
             passed[2]);
     System.out.printf("%tc : Schema is created in %d s.\n", System.currentTimeMillis(),
         schemaGenerationInterval / DateUtils.NANOS_IN_SECONDS);
-    System.out.printf("%tc : Entries are loaded in  %d s. \n", System.currentTimeMillis(),
-        entriesLoadInterval / DateUtils.NANOS_IN_SECONDS);
+    System.out.printf("%tc : Entries are loaded in  %d s. Total amount of entries %d \n", System.currentTimeMillis(),
+        entriesLoadInterval / DateUtils.NANOS_IN_SECONDS, entries);
     printThroughPut(entriesThroughput);
-    System.out.printf("%tc : Relations are loaded in %d s. \n", System.currentTimeMillis(),
-        relationsLoadInterval / DateUtils.NANOS_IN_SECONDS);
+    System.out.printf("%tc : Relations are loaded in %d s. Total amount of relations %d \n", System.currentTimeMillis(),
+        relationsLoadInterval / DateUtils.NANOS_IN_SECONDS, relations);
     printThroughPut(relationsThroughput);
 
   }
@@ -174,7 +182,7 @@ public class DBLoader {
     }
   }
 
-  private static long loadRelations(Path dataDir, ODatabasePool pool, ExecutorService cachedExecutor,
+  private static long[] loadRelations(Path dataDir, ODatabasePool pool, ExecutorService cachedExecutor,
       Map<String, Integer> relationsThroughput)
       throws java.io.IOException, java.util.concurrent.ExecutionException, InterruptedException {
     System.out.printf("%tc: Loading of database relations is started \n", System.currentTimeMillis());
@@ -182,100 +190,147 @@ public class DBLoader {
     final long start = System.nanoTime();
 
     int throughput;
+    long[] stat;
+    long operations = 0;
+
     final ContainerOfLoader containerOfLoader = new ContainerOfLoader(dataDir, "forum_containerOf_post_\\d+_\\d+\\.csv");
-    throughput = containerOfLoader.loadData(pool, cachedExecutor);
+    stat = containerOfLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("forum_containerOf_post", throughput);
 
     final CommentHasCreatorLoader commentHasCreatorLoader = new CommentHasCreatorLoader(dataDir,
         "comment_hasCreator_person_\\d+_\\d+\\.csv");
-    throughput = commentHasCreatorLoader.loadData(pool, cachedExecutor);
+    stat = commentHasCreatorLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("comment_hasCreator_person", throughput);
 
     final PostHasCreatorLoader postHasCreatorLoader = new PostHasCreatorLoader(dataDir, "post_hasCreator_person_\\d+_\\d+\\.csv");
-    throughput = postHasCreatorLoader.loadData(pool, cachedExecutor);
+    stat = postHasCreatorLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("post_hasCreator_person", throughput);
 
     final HasInterestLoader hasInterestLoader = new HasInterestLoader(dataDir, "person_hasInterest_tag_\\d+_\\d+\\.csv");
-    throughput = hasInterestLoader.loadData(pool, cachedExecutor);
+    stat = hasInterestLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("person_hasInterest_tag", throughput);
 
     final HasMemberLoader hasMemberLoader = new HasMemberLoader(dataDir, "forum_hasMember_person_\\d+_\\d+\\.csv");
-    throughput = hasMemberLoader.loadData(pool, cachedExecutor);
+    stat = hasMemberLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("forum_hasMember_person", throughput);
 
     final OrganisationIsLocatedInLoader organisationIsLocatedInLoader = new OrganisationIsLocatedInLoader(dataDir,
         "organisation_isLocatedIn_place_\\d+_\\d+\\.csv");
-    throughput = organisationIsLocatedInLoader.loadData(pool, cachedExecutor);
+    stat = organisationIsLocatedInLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("organisation_isLocatedIn_place", throughput);
 
     final HasModeratorLoader hasModeratorLoader = new HasModeratorLoader(dataDir, "forum_hasModerator_person_\\d+_\\d+\\.csv");
-    throughput = hasModeratorLoader.loadData(pool, cachedExecutor);
+    stat = hasModeratorLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("forum_hasModerator_person", throughput);
 
     final CommentHasTagLoader commentHasTagLoader = new CommentHasTagLoader(dataDir, "comment_hasTag_tag_\\d+_\\d+\\.csv");
-    throughput = commentHasTagLoader.loadData(pool, cachedExecutor);
+    stat = commentHasTagLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("comment_hasTag_tag", throughput);
 
     final PostHasTagLoader postHasTagLoader = new PostHasTagLoader(dataDir, "post_hasTag_tag_\\d+_\\d+\\.csv");
-    throughput = postHasTagLoader.loadData(pool, cachedExecutor);
+    stat = postHasTagLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("post_hasTag_tag", throughput);
 
     final ForumHasTagLoader forumHasTagLoader = new ForumHasTagLoader(dataDir, "forum_hasTag_tag_\\d+_\\d+\\.csv");
-    throughput = forumHasTagLoader.loadData(pool, cachedExecutor);
+    stat = forumHasTagLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("forum_hasTag_tag", throughput);
 
     final HasTypeLoader hasTypeLoader = new HasTypeLoader(dataDir, "tag_hasType_tagclass_\\d+_\\d+\\.csv");
-    throughput = hasTypeLoader.loadData(pool, cachedExecutor);
+    stat = hasTypeLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("tag_hasType_tagclass", throughput);
 
     final CommentIsLocatedInLoader commentIsLocatedInLoader = new CommentIsLocatedInLoader(dataDir,
         "comment_isLocatedIn_place_\\d+_\\d+\\.csv");
-    throughput = commentIsLocatedInLoader.loadData(pool, cachedExecutor);
+    stat = commentIsLocatedInLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("comment_isLocatedIn_place", throughput);
 
     final PostIsLocatedInLoader postIsLocatedInLoader = new PostIsLocatedInLoader(dataDir,
         "post_isLocatedIn_place_\\d+_\\d+\\.csv");
-    throughput = postIsLocatedInLoader.loadData(pool, cachedExecutor);
+    stat = postIsLocatedInLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("post_isLocatedIn_place", throughput);
 
     final PersonIsLocatedInLoader personIsLocatedInLoader = new PersonIsLocatedInLoader(dataDir,
         "person_isLocatedIn_place_\\d+_\\d+\\.csv");
-    throughput = personIsLocatedInLoader.loadData(pool, cachedExecutor);
+    stat = personIsLocatedInLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("person_isLocatedIn_place", throughput);
 
     final PlaceIsPartOfLoader placeIsPartOfLoader = new PlaceIsPartOfLoader(dataDir, "place_isPartOf_place_\\d+_\\d+\\.csv");
-    throughput = placeIsPartOfLoader.loadData(pool, cachedExecutor);
+    stat = placeIsPartOfLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("place_isPartOf_place", throughput);
 
     final KnowsLoader knowsLoader = new KnowsLoader(dataDir, "person_knows_person_\\d+_\\d+\\.csv");
-    throughput = knowsLoader.loadData(pool, cachedExecutor);
+    stat = knowsLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("person_knows_person", throughput);
 
     final PersonLikesCommentLoader personLikesCommentLoader = new PersonLikesCommentLoader(dataDir,
         "person_likes_comment_\\d+_\\d+\\.csv");
-    throughput = personLikesCommentLoader.loadData(pool, cachedExecutor);
+    stat = personLikesCommentLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("person_likes_comment", throughput);
 
     final PersonLikesPostLoader personLikesPostLoader = new PersonLikesPostLoader(dataDir, "person_likes_post_\\d+_\\d+\\.csv");
-    throughput = personLikesPostLoader.loadData(pool, cachedExecutor);
+    stat = personLikesPostLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("person_likes_post", throughput);
 
     final CommentReplyOfCommentLoader commentReplyOfCommentLoader = new CommentReplyOfCommentLoader(dataDir,
         "comment_replyOf_comment_\\d+_\\d+\\.csv");
-    throughput = commentReplyOfCommentLoader.loadData(pool, cachedExecutor);
+    stat = commentReplyOfCommentLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("comment_replyOf_comment", throughput);
 
     final CommentReplyOfPostLoader commentReplyOfPostLoader = new CommentReplyOfPostLoader(dataDir,
         "comment_replyOf_post_\\d+_\\d+\\.csv");
-    throughput = commentReplyOfPostLoader.loadData(pool, cachedExecutor);
+    stat = commentReplyOfPostLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("comment_replyOf_post", throughput);
 
     final StudyAtLoader studyAtLoader = new StudyAtLoader(dataDir, "person_studyAt_organisation_\\d+_\\d+\\.csv");
-    throughput = studyAtLoader.loadData(pool, cachedExecutor);
+    stat = studyAtLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("person_studyAt_organisation", throughput);
 
     final WorkAtLoader workAtLoader = new WorkAtLoader(dataDir, "person_workAt_organisation_\\d+_\\d+\\.csv");
-    throughput = workAtLoader.loadData(pool, cachedExecutor);
+    stat = workAtLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     relationsThroughput.put("person_workAt_organisation", throughput);
 
     final long end = System.nanoTime();
@@ -287,10 +342,10 @@ public class DBLoader {
     System.out.printf("%tc: Loading of database relations is completed in %d h. %d. m. %d s. (%d nanoseconds) \n",
         System.currentTimeMillis(), passed[0], passed[1], passed[2], interval);
 
-    return interval;
+    return new long[] { interval, operations };
   }
 
-  private static long loadEntries(Path dataDir, ODatabasePool pool, ExecutorService cachedExecutor,
+  private static long[] loadEntries(Path dataDir, ODatabasePool pool, ExecutorService cachedExecutor,
       Map<String, Integer> entriesThroughput)
       throws java.io.IOException, java.util.concurrent.ExecutionException, InterruptedException {
     System.out.printf("%tc: Loading of database entries is started \n", System.currentTimeMillis());
@@ -298,45 +353,67 @@ public class DBLoader {
     final long start = System.nanoTime();
 
     int throughput;
+    long[] stat;
+    long operations = 0;
 
     final PersonLoader personLoader = new PersonLoader(dataDir, "person_\\d+_\\d+\\.csv");
-    throughput = personLoader.loadData(pool, cachedExecutor);
+    stat = personLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     entriesThroughput.put("person", throughput);
 
     final PersonEMailLoader personEMailLoader = new PersonEMailLoader(dataDir, "person_email_emailaddress_\\d+_\\d+\\.csv");
-    throughput = personEMailLoader.loadData(pool, cachedExecutor);
+    stat = personEMailLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     entriesThroughput.put("person_email_emailaddress", throughput);
 
     final PersonSpeaksLoader personSpeaksLoader = new PersonSpeaksLoader(dataDir, "person_speaks_language_\\d+_\\d+\\.csv");
-    throughput = personSpeaksLoader.loadData(pool, cachedExecutor);
+    stat = personSpeaksLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     entriesThroughput.put("person_speaks_language", throughput);
 
     final ForumLoader forumLoader = new ForumLoader(dataDir, "forum_\\d+_\\d+\\.csv");
-    throughput = forumLoader.loadData(pool, cachedExecutor);
+    stat = forumLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     entriesThroughput.put("forum", throughput);
 
     final PostLoader postLoader = new PostLoader(dataDir, "post_\\d+_\\d+\\.csv");
-    throughput = postLoader.loadData(pool, cachedExecutor);
+    stat = postLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     entriesThroughput.put("post", throughput);
 
     final CommentLoader commentLoader = new CommentLoader(dataDir, "comment_\\d+_\\d+\\.csv");
-    throughput = commentLoader.loadData(pool, cachedExecutor);
+    stat = commentLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     entriesThroughput.put("comment", throughput);
 
     final TagClassLoader tagClassLoader = new TagClassLoader(dataDir, "tagclass_\\d+_\\d+\\.csv");
-    throughput = tagClassLoader.loadData(pool, cachedExecutor);
+    stat = tagClassLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     entriesThroughput.put("tagclass", throughput);
 
     final TagLoader tagLoader = new TagLoader(dataDir, "tag_\\d+_\\d+\\.csv");
-    throughput = tagLoader.loadData(pool, cachedExecutor);
+    stat = tagLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     entriesThroughput.put("tag", throughput);
 
     final PlaceLoader placeLoader = new PlaceLoader(dataDir, "place_\\d+_\\d+\\.csv");
-    throughput = placeLoader.loadData(pool, cachedExecutor);
+    stat = placeLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     entriesThroughput.put("tagclass", throughput);
 
     final OrganisationLoader organisationLoader = new OrganisationLoader(dataDir, "organisation_\\d+_\\d+\\.csv");
-    throughput = organisationLoader.loadData(pool, cachedExecutor);
+    stat = organisationLoader.loadData(pool, cachedExecutor);
+    throughput = (int) stat[0];
+    operations += stat[1];
     entriesThroughput.put("organisation", throughput);
 
     final long end = System.nanoTime();
@@ -348,7 +425,7 @@ public class DBLoader {
     System.out.printf("%tc: Loading of database entries is completed in %d h. %d. m. %d s. (%d nanoseconds) \n",
         System.currentTimeMillis(), passed[0], passed[1], passed[2], interval);
 
-    return interval;
+    return new long[] { interval, operations };
   }
 
   private static long generateSchema(OrientDB orientDB) {

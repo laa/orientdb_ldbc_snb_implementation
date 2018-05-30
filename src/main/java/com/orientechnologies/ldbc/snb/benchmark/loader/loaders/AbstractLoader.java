@@ -33,7 +33,8 @@ public abstract class AbstractLoader<D extends AbstractDTO> {
     this.filePattern = filePattern;
   }
 
-  public int loadData(ODatabasePool pool, ExecutorService executor) throws IOException, ExecutionException, InterruptedException {
+  public long[] loadData(ODatabasePool pool, ExecutorService executor)
+      throws IOException, ExecutionException, InterruptedException {
     final ArrayBlockingQueue<D> dataQueue = new ArrayBlockingQueue<>(1024);
     final List<Future<Void>> futures = new ArrayList<>();
     final int numThreads = 8;
@@ -95,7 +96,7 @@ public abstract class AbstractLoader<D extends AbstractDTO> {
             + "Total operations %d.\n", System.currentTimeMillis(), loaderName, passedTime[0], passedTime[1], passedTime[2],
         operationTimeMks, throughput, operations);
 
-    return (int) throughput;
+    return new long[] { throughput, operations };
   }
 
   protected abstract AbstractLoaderTask<D> createNewTask(ArrayBlockingQueue<D> dataQueue, ODatabasePool pool,
