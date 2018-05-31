@@ -13,8 +13,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class PersonLikesCommentLoader extends AbstractPartitionedLoader<PersonLikesCommentDTO> {
-  public PersonLikesCommentLoader(Path dataDir, String filePattern) {
-    super(dataDir, filePattern);
+  public PersonLikesCommentLoader(Path dataDir, String filePattern, int loadNumber, int totalAmountOfLoads) {
+    super(dataDir, filePattern, loadNumber, totalAmountOfLoads);
   }
 
   @Override

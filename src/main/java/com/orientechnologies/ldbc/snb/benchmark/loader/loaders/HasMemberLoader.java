@@ -13,8 +13,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class HasMemberLoader extends AbstractPartitionedLoader<HasMemberDTO> {
-  public HasMemberLoader(Path dataDir, String filePattern) {
-    super(dataDir, filePattern);
+  public HasMemberLoader(Path dataDir, String filePattern, int loadNumber, int totalAmountOfLoads) {
+    super(dataDir, filePattern, loadNumber, totalAmountOfLoads);
   }
 
   @Override

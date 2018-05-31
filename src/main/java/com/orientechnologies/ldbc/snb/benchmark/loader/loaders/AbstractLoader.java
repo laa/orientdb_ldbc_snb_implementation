@@ -27,10 +27,14 @@ import java.util.concurrent.atomic.AtomicLong;
 public abstract class AbstractLoader<D extends AbstractDTO> {
   final Path   dataDir;
   final String filePattern;
+  final int    loadNumber;
+  final int    totalAmountOfLoads;
 
-  AbstractLoader(Path dataDir, String filePattern) {
+  AbstractLoader(Path dataDir, String filePattern, int loadNumber, int totalAmountOfLoads) {
     this.dataDir = dataDir;
     this.filePattern = filePattern;
+    this.loadNumber = loadNumber;
+    this.totalAmountOfLoads = totalAmountOfLoads;
   }
 
   public long[] loadData(ODatabasePool pool, ExecutorService executor)
@@ -40,8 +44,8 @@ public abstract class AbstractLoader<D extends AbstractDTO> {
     final int numThreads = 8;
 
     final String loaderName = this.getClass().getSimpleName();
-    System.out.printf("%tc : Start loading of data from '%s' files from directory %s using %s.\n", System.currentTimeMillis(),
-        filePattern, dataDir, loaderName);
+    System.out.printf("%tc : %d out of %d : Start loading of data from '%s' files from directory %s using %s.\n",
+        System.currentTimeMillis(), loadNumber, totalAmountOfLoads, filePattern, dataDir, loaderName);
 
     final AtomicLong operationsCounter = new AtomicLong();
     for (int i = 0; i < numThreads; i++) {
@@ -92,9 +96,10 @@ public abstract class AbstractLoader<D extends AbstractDTO> {
     final long throughput = DateUtils.NANOS_IN_SECONDS / timePerOperation;
     final long operationTimeMks = timePerOperation / 1_000;
 
-    System.out.printf("%tc : %s : Loading is completed in %d h. %d m. %d s. Avg operation time %d us. Throughput %d op/s. "
-            + "Total operations %d.\n", System.currentTimeMillis(), loaderName, passedTime[0], passedTime[1], passedTime[2],
-        operationTimeMks, throughput, operations);
+    System.out.printf(
+        "%tc : %s : %d out of %d : Loading is completed in %d h. %d m. %d s. Avg operation time %d us. Throughput %d op/s. "
+            + "Total operations %d.\n", System.currentTimeMillis(), loaderName, loadNumber, totalAmountOfLoads, passedTime[0],
+        passedTime[1], passedTime[2], operationTimeMks, throughput, operations);
 
     return new long[] { throughput, operations };
   }
@@ -129,15 +134,15 @@ public abstract class AbstractLoader<D extends AbstractDTO> {
           operations = currentOperations;
 
           if (operationsPassed == 0) {
-            System.out.printf("%tc : %d operations, avg. operation time 0 us, throughput N/A\n", System.currentTimeMillis(),
-                currentOperations);
+            System.out.printf("%tc : %s : %d out of %d : %d operations, avg. operation time N/A us, throughput N/A\n",
+                System.currentTimeMillis(), loaderName, loadNumber, totalAmountOfLoads, currentOperations);
           } else {
             final long operationTime = timePassed / operationsPassed;
             final long throughput = DateUtils.NANOS_IN_SECONDS / operationTime;
             final long operationTimeInMks = operationTime / 1_000;
-            System.out
-                .printf("%tc : %s: %d operations, avg. operation time %d us, throughput %d op/s\n", System.currentTimeMillis(),
-                    loaderName, currentOperations, operationTimeInMks, throughput);
+            System.out.printf("%tc : %s: %d out of %d : %d operations, avg. operation time %d us, throughput %d op/s\n",
+                System.currentTimeMillis(), loaderName, loadNumber, totalAmountOfLoads, currentOperations, operationTimeInMks,
+                throughput);
           }
         }
       }

@@ -11,8 +11,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class StudyAtLoader extends AbstractPartitionedLoader<StudyAtDTO> {
-  public StudyAtLoader(Path dataDir, String filePattern) {
-    super(dataDir, filePattern);
+  public StudyAtLoader(Path dataDir, String filePattern, int loadNumber, int totalAmountOfLoads) {
+    super(dataDir, filePattern, loadNumber, totalAmountOfLoads);
   }
 
   @Override

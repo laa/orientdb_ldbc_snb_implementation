@@ -23,20 +23,21 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class AbstractPartitionedLoader<D extends AbstractDTO> extends AbstractLoader<D> {
-  AbstractPartitionedLoader(Path dataDir, String filePattern) {
-    super(dataDir, filePattern);
+  AbstractPartitionedLoader(Path dataDir, String filePattern, int loadNumber, int totalAmountOfLoads) {
+    super(dataDir, filePattern, loadNumber, totalAmountOfLoads);
   }
 
   @Override
-  public long[] loadData(ODatabasePool pool, ExecutorService executor) throws IOException, ExecutionException, InterruptedException {
+  public long[] loadData(ODatabasePool pool, ExecutorService executor)
+      throws IOException, ExecutionException, InterruptedException {
     final int numThreads = 8;
     @SuppressWarnings("unchecked")
     final ArrayBlockingQueue<D>[] dataQueues = new ArrayBlockingQueue[numThreads];
     final List<Future<Void>> futures = new ArrayList<>();
 
     final String loaderName = this.getClass().getSimpleName();
-    System.out.printf("%tc : Start loading of data from '%s' files from directory %s using %s.\n", System.currentTimeMillis(),
-        filePattern, dataDir, loaderName);
+    System.out.printf("%tc : %d out of %d : Start loading of data from '%s' files from directory %s using %s.\n",
+        System.currentTimeMillis(), loadNumber, totalAmountOfLoads, filePattern, dataDir, loaderName);
 
     final AtomicLong operationsCounter = new AtomicLong();
     for (int i = 0; i < numThreads; i++) {
@@ -92,9 +93,9 @@ public abstract class AbstractPartitionedLoader<D extends AbstractDTO> extends A
     final long throughput = DateUtils.NANOS_IN_SECONDS / timePerOperation;
     final long operationTimeMks = timePerOperation / 1_000;
 
-    System.out.printf("%tc : %s : Loading is completed in %d h. %d m. %d s. Avg operation time %d us."
-            + " Throughput %d op/s. Total operations %d.\n", System.currentTimeMillis(), loaderName, passedTime[0], passedTime[1],
-        passedTime[2], operationTimeMks, throughput, operations);
+    System.out.printf("%tc : %s : %d out of %d : Loading is completed in %d h. %d m. %d s. Avg operation time %d us."
+            + " Throughput %d op/s. Total operations %d.\n", System.currentTimeMillis(), loaderName, loadNumber, totalAmountOfLoads,
+        passedTime[0], passedTime[1], passedTime[2], operationTimeMks, throughput, operations);
 
     return new long[] { throughput, operations };
   }

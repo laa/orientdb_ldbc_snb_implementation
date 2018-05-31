@@ -13,8 +13,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class PersonLoader extends AbstractLoader<PersonDTO> {
-  public PersonLoader(Path dataDir, String filePattern) {
-    super(dataDir, filePattern);
+  public PersonLoader(Path dataDir, String filePattern, int loadNumber, int totalAmountOfLoads) {
+    super(dataDir, filePattern, loadNumber, totalAmountOfLoads);
   }
 
   @Override

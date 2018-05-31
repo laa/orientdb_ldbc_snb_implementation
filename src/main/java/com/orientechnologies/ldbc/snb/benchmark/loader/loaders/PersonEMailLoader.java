@@ -11,8 +11,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class PersonEMailLoader extends AbstractPartitionedLoader<PersonEMailDTO> {
-  public PersonEMailLoader(Path dataDir, String filePattern) {
-    super(dataDir, filePattern);
+  public PersonEMailLoader(Path dataDir, String filePattern, int loadNumber, int totalAmountOfLoads) {
+    super(dataDir, filePattern, loadNumber, totalAmountOfLoads);
   }
 
   @Override
