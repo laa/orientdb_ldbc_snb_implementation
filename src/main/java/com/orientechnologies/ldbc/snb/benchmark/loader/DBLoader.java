@@ -189,7 +189,7 @@ public class DBLoader {
 
     final long start = System.nanoTime();
 
-    final int totalLoads = 10;
+    final int totalLoads = 22;
     int throughput;
     long[] stat;
     long operations = 0;
