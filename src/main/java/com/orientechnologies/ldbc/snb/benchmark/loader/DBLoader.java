@@ -504,7 +504,7 @@ public class DBLoader {
     personClass.createProperty(PERSON_LOCATION_IP, OType.STRING);
     personClass.createProperty(PERSON_CREATION_DATE, OType.DATETIME);
 
-    personClass.createIndex("person_id", OClass.INDEX_TYPE.UNIQUE_HASH_INDEX, PERSON_ID);
+    personClass.createIndex("person_id", OClass.INDEX_TYPE.UNIQUE, PERSON_ID);
 
     final OClass forumClass = session.createVertexClass(FORUM_CLASS);
 
@@ -512,7 +512,7 @@ public class DBLoader {
     forumClass.createProperty(FORUM_TITLE, OType.STRING);
     forumClass.createProperty(FORUM_CREATION_DATE, OType.DATETIME);
 
-    forumClass.createIndex("forum_id", OClass.INDEX_TYPE.UNIQUE_HASH_INDEX, FORUM_ID);
+    forumClass.createIndex("forum_id", OClass.INDEX_TYPE.UNIQUE, FORUM_ID);
 
     final OClass messageClass = session.createVertexClass(MESSAGE_CLASS);
 
@@ -523,7 +523,7 @@ public class DBLoader {
     messageClass.createProperty(MESSAGE_CONTENT, OType.STRING);
     messageClass.createProperty(MESSAGE_LENGTH, OType.INTEGER);
 
-    messageClass.createIndex("message_id", OClass.INDEX_TYPE.UNIQUE_HASH_INDEX, MESSAGE_ID);
+    messageClass.createIndex("message_id", OClass.INDEX_TYPE.UNIQUE, MESSAGE_ID);
 
     final OClass postClass = session.createClass(POST_CLASS, MESSAGE_CLASS);
     postClass.createProperty(POST_LANGUAGE, OType.STRING);
@@ -537,7 +537,7 @@ public class DBLoader {
     tagClassClass.createProperty(TAG_CLASS_NAME, OType.STRING);
     tagClassClass.createProperty(TAG_CLASS_URL, OType.STRING);
 
-    tagClassClass.createIndex("tagClass_id", OClass.INDEX_TYPE.UNIQUE_HASH_INDEX, TAG_CLASS_ID);
+    tagClassClass.createIndex("tagClass_id", OClass.INDEX_TYPE.UNIQUE, TAG_CLASS_ID);
 
     final OClass tagClass = session.createVertexClass(TAG_CLASS);
 
@@ -545,7 +545,7 @@ public class DBLoader {
     tagClass.createProperty(TAG_NAME, OType.STRING);
     tagClass.createProperty(TAG_URL, OType.STRING);
 
-    tagClass.createIndex("tag_id", OClass.INDEX_TYPE.UNIQUE_HASH_INDEX, TAG_ID);
+    tagClass.createIndex("tag_id", OClass.INDEX_TYPE.UNIQUE, TAG_ID);
 
     final OClass placeClass = session.createVertexClass(PLACE_CLASS);
 
@@ -553,7 +553,7 @@ public class DBLoader {
     placeClass.createProperty(PLACE_NAME, OType.STRING);
     placeClass.createProperty(PLACE_URL, OType.STRING);
 
-    placeClass.createIndex("place_id", OClass.INDEX_TYPE.UNIQUE_HASH_INDEX, PLACE_ID);
+    placeClass.createIndex("place_id", OClass.INDEX_TYPE.UNIQUE, PLACE_ID);
 
     session.createClass(CITY_CLASS, PLACE_CLASS);
 
@@ -567,7 +567,7 @@ public class DBLoader {
     organisationClass.createProperty(ORGANISATION_NAME, OType.STRING);
     organisationClass.createProperty(ORGANISATION_URL, OType.STRING);
 
-    organisationClass.createIndex("organisation_id", OClass.INDEX_TYPE.UNIQUE_HASH_INDEX, ORGANISATION_ID);
+    organisationClass.createIndex("organisation_id", OClass.INDEX_TYPE.UNIQUE, ORGANISATION_ID);
 
     session.createClass(UNIVERSITY_CLASS, ORGANISATION_CLASS);
 
