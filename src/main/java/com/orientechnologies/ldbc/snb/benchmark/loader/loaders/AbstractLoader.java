@@ -60,7 +60,7 @@ public abstract class AbstractLoader<D extends AbstractDTO> {
           try {
             try (InputStream is = Files.newInputStream(path)) {
               try (InputStreamReader isr = new InputStreamReader(is)) {
-                try (BufferedReader br = new BufferedReader(isr)) {
+                try (BufferedReader br = new BufferedReader(isr, 100 * 1024 * 1024)) {
                   br.readLine();//skip header
                   try (CSVParser csvParser = new CSVParser(br, CSVFormat.DEFAULT.withDelimiter('|'))) {
                     for (CSVRecord csvRecord : csvParser) {
