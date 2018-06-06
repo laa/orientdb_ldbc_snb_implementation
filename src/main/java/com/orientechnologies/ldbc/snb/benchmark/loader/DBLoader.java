@@ -62,9 +62,8 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -133,8 +132,8 @@ public class DBLoader {
     final long entries;
     final long relations;
 
-    final SortedMap<String, Integer> relationsThroughput = new TreeMap<>();
-    final SortedMap<String, Integer> entriesThroughput = new TreeMap<>();
+    final Map<String, int[]> relationsThroughput = new LinkedHashMap<>();
+    final Map<String, int[]> entriesThroughput = new LinkedHashMap<>();
 
     try (OrientDB orientDB = new OrientDB("plocal:" + DEFAULT_ENGINE_DIRECTORY, OrientDBConfig.defaultConfig())) {
       orientDB.create(DEFAULT_DB_NAME, ODatabaseType.PLOCAL);
@@ -176,14 +175,15 @@ public class DBLoader {
 
   }
 
-  private static void printThroughPut(SortedMap<String, Integer> throughput) {
-    for (Map.Entry<String, Integer> entry : throughput.entrySet()) {
-      System.out.printf("%tc : \t %s : %d op/s\n", System.currentTimeMillis(), entry.getKey(), entry.getValue());
+  private static void printThroughPut(Map<String, int[]> throughput) {
+    for (Map.Entry<String, int[]> entry : throughput.entrySet()) {
+      final int[] ops = entry.getValue();
+      System.out.printf("%tc : \t %s : %d op/s, \t %d operations\n", System.currentTimeMillis(), entry.getKey(), ops[0], ops[1]);
     }
   }
 
   private static long[] loadRelations(Path dataDir, ODatabasePool pool, ExecutorService cachedExecutor,
-      Map<String, Integer> relationsThroughput)
+      Map<String, int[]> relationsThroughput)
       throws java.io.IOException, java.util.concurrent.ExecutionException, InterruptedException {
     System.out.printf("%tc: Loading of database relations is started \n", System.currentTimeMillis());
 
@@ -199,147 +199,147 @@ public class DBLoader {
     stat = containerOfLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("forum_containerOf_post", throughput);
+    relationsThroughput.put("forum_containerOf_post", new int[] { throughput, (int) stat[1] });
 
     final CommentHasCreatorLoader commentHasCreatorLoader = new CommentHasCreatorLoader(dataDir,
         "comment_hasCreator_person_\\d+_\\d+\\.csv", 2, totalLoads);
     stat = commentHasCreatorLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("comment_hasCreator_person", throughput);
+    relationsThroughput.put("comment_hasCreator_person", new int[] { throughput, (int) stat[1] });
 
     final PostHasCreatorLoader postHasCreatorLoader = new PostHasCreatorLoader(dataDir, "post_hasCreator_person_\\d+_\\d+\\.csv", 3,
         totalLoads);
     stat = postHasCreatorLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("post_hasCreator_person", throughput);
+    relationsThroughput.put("post_hasCreator_person", new int[] { throughput, (int) stat[1] });
 
     final HasInterestLoader hasInterestLoader = new HasInterestLoader(dataDir, "person_hasInterest_tag_\\d+_\\d+\\.csv", 4,
         totalLoads);
     stat = hasInterestLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("person_hasInterest_tag", throughput);
+    relationsThroughput.put("person_hasInterest_tag", new int[] { throughput, (int) stat[1] });
 
     final HasMemberLoader hasMemberLoader = new HasMemberLoader(dataDir, "forum_hasMember_person_\\d+_\\d+\\.csv", 5, totalLoads);
     stat = hasMemberLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("forum_hasMember_person", throughput);
+    relationsThroughput.put("forum_hasMember_person", new int[] { throughput, (int) stat[1] });
 
     final OrganisationIsLocatedInLoader organisationIsLocatedInLoader = new OrganisationIsLocatedInLoader(dataDir,
         "organisation_isLocatedIn_place_\\d+_\\d+\\.csv", 6, totalLoads);
     stat = organisationIsLocatedInLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("organisation_isLocatedIn_place", throughput);
+    relationsThroughput.put("organisation_isLocatedIn_place", new int[] { throughput, (int) stat[1] });
 
     final HasModeratorLoader hasModeratorLoader = new HasModeratorLoader(dataDir, "forum_hasModerator_person_\\d+_\\d+\\.csv", 7,
         totalLoads);
     stat = hasModeratorLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("forum_hasModerator_person", throughput);
+    relationsThroughput.put("forum_hasModerator_person", new int[] { throughput, (int) stat[1] });
 
     final CommentHasTagLoader commentHasTagLoader = new CommentHasTagLoader(dataDir, "comment_hasTag_tag_\\d+_\\d+\\.csv", 8,
         totalLoads);
     stat = commentHasTagLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("comment_hasTag_tag", throughput);
+    relationsThroughput.put("comment_hasTag_tag", new int[] { throughput, (int) stat[1] });
 
     final PostHasTagLoader postHasTagLoader = new PostHasTagLoader(dataDir, "post_hasTag_tag_\\d+_\\d+\\.csv", 9, totalLoads);
     stat = postHasTagLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("post_hasTag_tag", throughput);
+    relationsThroughput.put("post_hasTag_tag", new int[] { throughput, (int) stat[1] });
 
     final ForumHasTagLoader forumHasTagLoader = new ForumHasTagLoader(dataDir, "forum_hasTag_tag_\\d+_\\d+\\.csv", 10, totalLoads);
     stat = forumHasTagLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("forum_hasTag_tag", throughput);
+    relationsThroughput.put("forum_hasTag_tag", new int[] { throughput, (int) stat[1] });
 
     final HasTypeLoader hasTypeLoader = new HasTypeLoader(dataDir, "tag_hasType_tagclass_\\d+_\\d+\\.csv", 11, totalLoads);
     stat = hasTypeLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("tag_hasType_tagclass", throughput);
+    relationsThroughput.put("tag_hasType_tagclass", new int[] { throughput, (int) stat[1] });
 
     final CommentIsLocatedInLoader commentIsLocatedInLoader = new CommentIsLocatedInLoader(dataDir,
         "comment_isLocatedIn_place_\\d+_\\d+\\.csv", 12, totalLoads);
     stat = commentIsLocatedInLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("comment_isLocatedIn_place", throughput);
+    relationsThroughput.put("comment_isLocatedIn_place", new int[] { throughput, (int) stat[1] });
 
     final PostIsLocatedInLoader postIsLocatedInLoader = new PostIsLocatedInLoader(dataDir, "post_isLocatedIn_place_\\d+_\\d+\\.csv",
         13, totalLoads);
     stat = postIsLocatedInLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("post_isLocatedIn_place", throughput);
+    relationsThroughput.put("post_isLocatedIn_place", new int[] { throughput, (int) stat[1] });
 
     final PersonIsLocatedInLoader personIsLocatedInLoader = new PersonIsLocatedInLoader(dataDir,
         "person_isLocatedIn_place_\\d+_\\d+\\.csv", 14, totalLoads);
     stat = personIsLocatedInLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("person_isLocatedIn_place", throughput);
+    relationsThroughput.put("person_isLocatedIn_place", new int[] { throughput, (int) stat[1] });
 
     final PlaceIsPartOfLoader placeIsPartOfLoader = new PlaceIsPartOfLoader(dataDir, "place_isPartOf_place_\\d+_\\d+\\.csv", 15,
         totalLoads);
     stat = placeIsPartOfLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("place_isPartOf_place", throughput);
+    relationsThroughput.put("place_isPartOf_place", new int[] { throughput, (int) stat[1] });
 
     final KnowsLoader knowsLoader = new KnowsLoader(dataDir, "person_knows_person_\\d+_\\d+\\.csv", 16, totalLoads);
     stat = knowsLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("person_knows_person", throughput);
+    relationsThroughput.put("person_knows_person", new int[] { throughput, (int) stat[1] });
 
     final PersonLikesCommentLoader personLikesCommentLoader = new PersonLikesCommentLoader(dataDir,
         "person_likes_comment_\\d+_\\d+\\.csv", 17, totalLoads);
     stat = personLikesCommentLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("person_likes_comment", throughput);
+    relationsThroughput.put("person_likes_comment", new int[] { throughput, (int) stat[1] });
 
     final PersonLikesPostLoader personLikesPostLoader = new PersonLikesPostLoader(dataDir, "person_likes_post_\\d+_\\d+\\.csv", 18,
         totalLoads);
     stat = personLikesPostLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("person_likes_post", throughput);
+    relationsThroughput.put("person_likes_post", new int[] { throughput, (int) stat[1] });
 
     final CommentReplyOfCommentLoader commentReplyOfCommentLoader = new CommentReplyOfCommentLoader(dataDir,
         "comment_replyOf_comment_\\d+_\\d+\\.csv", 19, totalLoads);
     stat = commentReplyOfCommentLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("comment_replyOf_comment", throughput);
+    relationsThroughput.put("comment_replyOf_comment", new int[] { throughput, (int) stat[1] });
 
     final CommentReplyOfPostLoader commentReplyOfPostLoader = new CommentReplyOfPostLoader(dataDir,
         "comment_replyOf_post_\\d+_\\d+\\.csv", 20, totalLoads);
     stat = commentReplyOfPostLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("comment_replyOf_post", throughput);
+    relationsThroughput.put("comment_replyOf_post", new int[] { throughput, (int) stat[1] });
 
     final StudyAtLoader studyAtLoader = new StudyAtLoader(dataDir, "person_studyAt_organisation_\\d+_\\d+\\.csv", 21, totalLoads);
     stat = studyAtLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("person_studyAt_organisation", throughput);
+    relationsThroughput.put("person_studyAt_organisation", new int[] { throughput, (int) stat[1] });
 
     final WorkAtLoader workAtLoader = new WorkAtLoader(dataDir, "person_workAt_organisation_\\d+_\\d+\\.csv", 22, totalLoads);
     stat = workAtLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    relationsThroughput.put("person_workAt_organisation", throughput);
+    relationsThroughput.put("person_workAt_organisation", new int[] { throughput, (int) stat[1] });
 
     final long end = System.nanoTime();
 
@@ -354,7 +354,7 @@ public class DBLoader {
   }
 
   private static long[] loadEntries(Path dataDir, ODatabasePool pool, ExecutorService cachedExecutor,
-      Map<String, Integer> entriesThroughput)
+      Map<String, int[]> entriesThroughput)
       throws java.io.IOException, java.util.concurrent.ExecutionException, InterruptedException {
     System.out.printf("%tc: Loading of database entries is started \n", System.currentTimeMillis());
 
@@ -369,63 +369,63 @@ public class DBLoader {
     stat = personLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    entriesThroughput.put("person", throughput);
+    entriesThroughput.put("person", new int[] { throughput, (int) stat[1] });
 
     final PersonEMailLoader personEMailLoader = new PersonEMailLoader(dataDir, "person_email_emailaddress_\\d+_\\d+\\.csv", 2,
         totalLoads);
     stat = personEMailLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    entriesThroughput.put("person_email_emailaddress", throughput);
+    entriesThroughput.put("person_email_emailaddress", new int[] { throughput, (int) stat[1] });
 
     final PersonSpeaksLoader personSpeaksLoader = new PersonSpeaksLoader(dataDir, "person_speaks_language_\\d+_\\d+\\.csv", 3,
         totalLoads);
     stat = personSpeaksLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    entriesThroughput.put("person_speaks_language", throughput);
+    entriesThroughput.put("person_speaks_language", new int[] { throughput, (int) stat[1] });
 
     final ForumLoader forumLoader = new ForumLoader(dataDir, "forum_\\d+_\\d+\\.csv", 4, totalLoads);
     stat = forumLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    entriesThroughput.put("forum", throughput);
+    entriesThroughput.put("forum", new int[] { throughput, (int) stat[1] });
 
     final PostLoader postLoader = new PostLoader(dataDir, "post_\\d+_\\d+\\.csv", 5, totalLoads);
     stat = postLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    entriesThroughput.put("post", throughput);
+    entriesThroughput.put("post", new int[] { throughput, (int) stat[1] });
 
     final CommentLoader commentLoader = new CommentLoader(dataDir, "comment_\\d+_\\d+\\.csv", 6, totalLoads);
     stat = commentLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    entriesThroughput.put("comment", throughput);
+    entriesThroughput.put("comment", new int[] { throughput, (int) stat[1] });
 
     final TagClassLoader tagClassLoader = new TagClassLoader(dataDir, "tagclass_\\d+_\\d+\\.csv", 7, totalLoads);
     stat = tagClassLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    entriesThroughput.put("tagclass", throughput);
+    entriesThroughput.put("tagclass", new int[] { throughput, (int) stat[1] });
 
     final TagLoader tagLoader = new TagLoader(dataDir, "tag_\\d+_\\d+\\.csv", 8, totalLoads);
     stat = tagLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    entriesThroughput.put("tag", throughput);
+    entriesThroughput.put("tag", new int[] { throughput, (int) stat[1] });
 
     final PlaceLoader placeLoader = new PlaceLoader(dataDir, "place_\\d+_\\d+\\.csv", 9, totalLoads);
     stat = placeLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    entriesThroughput.put("tagclass", throughput);
+    entriesThroughput.put("tagclass", new int[] { throughput, (int) stat[1] });
 
     final OrganisationLoader organisationLoader = new OrganisationLoader(dataDir, "organisation_\\d+_\\d+\\.csv", 10, totalLoads);
     stat = organisationLoader.loadData(pool, cachedExecutor);
     throughput = (int) stat[0];
     operations += stat[1];
-    entriesThroughput.put("organisation", throughput);
+    entriesThroughput.put("organisation", new int[] { throughput, (int) stat[1] });
 
     final long end = System.nanoTime();
 
