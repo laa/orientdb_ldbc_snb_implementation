@@ -17,8 +17,8 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
-task loadData(type: JavaExec,dependsOn: classes) {
+task loadData(type: JavaExec, dependsOn: classes) {
     classpath = sourceSets.main.runtimeClasspath
     main = 'com.orientechnologies.ldbc.snb.benchmark.loader.DBLoader'
-    jvmArgs = ["-server"]
+    jvmArgs = ["-server", "-XX:+PrintGCDetails", "-XX:+PrintGCDateStamps",  "-Xloggc:./gc.log"]
 }
