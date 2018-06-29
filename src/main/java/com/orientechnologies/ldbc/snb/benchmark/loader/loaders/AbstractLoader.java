@@ -136,6 +136,7 @@ public abstract class AbstractLoader<D extends AbstractDTO> {
           if (operationsPassed == 0) {
             System.out.printf("%tc : %s : %d out of %d : %d operations, avg. operation time N/A us, throughput N/A\n",
                 System.currentTimeMillis(), loaderName, loadNumber, totalAmountOfLoads, currentOperations);
+            Thread.dumpStack();
           } else {
             final long operationTime = timePassed / operationsPassed;
             final long throughput = DateUtils.NANOS_IN_SECONDS / operationTime;
