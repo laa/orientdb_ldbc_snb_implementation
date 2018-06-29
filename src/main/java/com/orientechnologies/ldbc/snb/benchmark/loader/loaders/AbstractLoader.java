@@ -12,10 +12,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -134,9 +136,25 @@ public abstract class AbstractLoader<D extends AbstractDTO> {
           operations = currentOperations;
 
           if (operationsPassed == 0) {
-            System.out.printf("%tc : %s : %d out of %d : %d operations, avg. operation time N/A us, throughput N/A\n",
-                System.currentTimeMillis(), loaderName, loadNumber, totalAmountOfLoads, currentOperations);
-            Thread.dumpStack();
+            final StringWriter writer = new StringWriter();
+            writer.append(String.format("%tc : %s : %d out of %d : %d operations, avg. operation time N/A us, throughput N/A\n",
+                System.currentTimeMillis(), loaderName, loadNumber, totalAmountOfLoads, currentOperations));
+
+            writer.append("List of active threads: \r\n");
+            writer.append("------------------------------------------------------------------------------------------------\r\n");
+            for (Map.Entry<Thread, StackTraceElement[]> entry : Thread.getAllStackTraces().entrySet()) {
+              writer.append("Thread : ").append(entry.getKey().getName()).append("\r\n");
+
+              StackTraceElement[] stackTraceElements = entry.getValue();
+              for (int i = 1; i < stackTraceElements.length; i++) {
+                writer.append("\tat ").append(stackTraceElements[i].toString()).append("\r\n");
+              }
+
+              writer.append("\r\n\r\n");
+            }
+            writer.append("-------------------------------------------------------------------------------------------------\r\n");
+
+            System.out.println(writer.toString());
           } else {
             final long operationTime = timePassed / operationsPassed;
             final long throughput = DateUtils.NANOS_IN_SECONDS / operationTime;
